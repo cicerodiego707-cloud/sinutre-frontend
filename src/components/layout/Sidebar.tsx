@@ -2,15 +2,23 @@
 import { NAV_ITEMS } from '@/constants/navigation';
 import { SidebarBrand } from './SidebarBrand';
 import { SidebarItem } from './SidebarItem';
-
+import { useAuth } from '@/context/AuthContext';
+import { SignOut } from '@phosphor-icons/react';
+import { useNavigate } from 'react-router-dom';
 interface SidebarProps {
   drawerId: string;
 }
 
 export function Sidebar({ drawerId }: SidebarProps) {
  // const [activeId, setActiveId] = useState<string>('home');
+  const { logout } = useAuth();
   const expanded = true;
+  const navigate = useNavigate();
 
+       function handleLogout() {
+          logout();
+        navigate('/login', { replace: true });
+}
   return (
     <aside className="drawer-side z-50">
       <label
@@ -24,6 +32,7 @@ export function Sidebar({ drawerId }: SidebarProps) {
         }`}
       >
         <SidebarBrand expanded={expanded} />
+        
         <ul className="menu w-full grow pt-4 gap-2">
           {NAV_ITEMS.map(item => (
             <SidebarItem
@@ -35,6 +44,16 @@ export function Sidebar({ drawerId }: SidebarProps) {
             />
           ))}
         </ul>
+        <div className="w-full p-4">
+  <button
+    type="button"
+    onClick={handleLogout}
+    className="btn btn-error btn-outline w-full"
+  >
+    <SignOut size={22} />
+    Sair
+  </button>
+</div>
       </div>
     </aside>
   );

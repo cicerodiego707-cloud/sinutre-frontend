@@ -5,13 +5,14 @@ import {
   useState,
 } from 'react';
 
-import { api } from '@/lib/api';
+import { api, clearToken } from '@/lib/api';
 import type { User } from '@/types/user';
 
 interface AuthContextData {
   user: User | null;
   loading: boolean;
   refreshUser: () => Promise<void>;
+  logout: () => void;
 }
 
 const AuthContext =
@@ -35,13 +36,17 @@ export function AuthProvider({
       const response = await api.get(
         '/auth/me',
       );
-
+      
       setUser(response.data);
     } catch {
       setUser(null);
     }
+    
   }
-
+    function logout() {
+      clearToken();
+      setUser(null);
+}
   useEffect(() => {
     refreshUser().finally(() =>
       setLoading(false),
@@ -54,6 +59,7 @@ export function AuthProvider({
         user,
         loading,
         refreshUser,
+        logout,
       }}
     >
       {children}

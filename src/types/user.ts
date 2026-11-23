@@ -1,6 +1,6 @@
 export interface User {
-  id: bigint;
+  id: number;
   githubLogin: string;
   name: string;
-  avatarUrl: string;
+  avatarUrl: string | null;
 }

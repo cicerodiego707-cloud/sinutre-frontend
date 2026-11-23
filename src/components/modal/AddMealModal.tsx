@@ -33,10 +33,10 @@ export function AddMealModal({
   const category = MEAL_CATEGORY_BY_ID[typeMeal];
   
   const [meal, setMeal] = useState<MealState>({
-    description: '',
-    type: category.id,
-    eatTime: '',
-  });
+  description: '',
+  type: category.id,
+  eatTime: new Date().toISOString().slice(0, 16),
+});
 
   const [items, setItems] = useState<FoodItem[]>([]);
 

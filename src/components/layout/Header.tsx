@@ -3,7 +3,7 @@ import { List } from '@phosphor-icons/react';
 interface HeaderProps {
   drawerId: string;
   userName: string;
-  avatarUrl: string;
+  avatarUrl: string | null;
 }
 
 export function Header({ drawerId, userName, avatarUrl }: HeaderProps) {
@@ -21,7 +21,13 @@ export function Header({ drawerId, userName, avatarUrl }: HeaderProps) {
 
       <div className="avatar shrink-0">
         <div className="w-10 lg:w-16 rounded-full border border-base-300">
-          <img src={avatarUrl} alt={`Avatar de ${userName}`} />
+          {avatarUrl ? (
+  <img src={avatarUrl} alt={`Avatar de ${userName}`} />
+) : (
+  <div className="flex h-full w-full items-center justify-center bg-base-300 text-xl font-bold">
+    {userName.charAt(0).toUpperCase()}
+  </div>
+)}
         </div>
       </div>
 

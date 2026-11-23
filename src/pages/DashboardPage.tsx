@@ -32,13 +32,11 @@ interface DashboardPageProps {
 
 export function DashboardPage({ drawerId }: DashboardPageProps) {
   const { user } = useAuth();
-  if (!user){
-    return <></>
-  }
   const modal = useMealModal();
 
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [calorieGoal, setCalorieGoal] = useState<number | null>(null);
 
   async function loadMeals() {
     try {
@@ -48,10 +46,18 @@ export function DashboardPage({ drawerId }: DashboardPageProps) {
       setLoading(false);
     }
   }
-
+  async function loadHealthData() {
+  try {
+    const response = await api.get('/healthdata');
+    setCalorieGoal(response.data?.targetDietDaily ?? null);
+  } catch (error) {
+    console.error('Erro ao carregar a meta diária:', error);
+  }
+}
   useEffect(() => {
-    loadMeals();
-  }, []);
+  loadMeals();
+  loadHealthData();
+}, []);
 
   const mealsSummary = useMemo(() => {
     const today = new Date();
@@ -82,14 +88,14 @@ export function DashboardPage({ drawerId }: DashboardPageProps) {
       thisMonth: monthCount,
       today: todayCount,
     };
-  }, [meals]);
+  }, [meals, calorieGoal]);
 
   const macroSummary = useMemo(() => {
     const today = new Date();
     return meals.filter((meal) => {
       const date = new Date(meal.eatTime);
       return (
-        date.getDay() === today.getDay() &&
+        date.getDate() === today.getDate() &&
         date.getMonth() === today.getMonth() &&
         date.getFullYear() === today.getFullYear()
       );
@@ -108,12 +114,14 @@ export function DashboardPage({ drawerId }: DashboardPageProps) {
         fats: 0,
         calories: 0,
 
-        caloriesGoal: 1000, //ainda não veio do banco de dados
+        caloriesGoal: calorieGoal,
       },
     );
   }, [meals]);
 
-
+    if (!user) {
+    return <></>;
+  }
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">

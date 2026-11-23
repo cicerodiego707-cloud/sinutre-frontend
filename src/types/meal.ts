@@ -32,7 +32,7 @@ export interface MacroSummary {
   proteins: number;
   fats: number;
   calories: number;
-  caloriesGoal: number;
+  caloriesGoal: number | null;
 }
 
 export interface MealsSummary {
