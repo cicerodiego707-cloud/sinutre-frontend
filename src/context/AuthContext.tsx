@@ -1,3 +1,4 @@
+
 import {
   createContext,
   useContext,
@@ -33,20 +34,20 @@ export function AuthProvider({
 
   async function refreshUser() {
     try {
-      const response = await api.get(
-        '/auth/me',
-      );
-      
+      const response = await api.get('/auth/me');
+
       setUser(response.data);
     } catch {
-      setUser(null);
-    }
-    
-  }
-    function logout() {
       clearToken();
       setUser(null);
-}
+    }
+  }
+
+  function logout() {
+    clearToken();
+    setUser(null);
+  }
+
   useEffect(() => {
     refreshUser().finally(() =>
       setLoading(false),

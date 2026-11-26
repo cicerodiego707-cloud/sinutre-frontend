@@ -6,6 +6,7 @@ import { AddFoodModal } from '@/components/modal/AddFoodModal';
 import { EditFoodModal } from '@/components/modal/EditFoodModal';
 import { getFoods, deleteFood } from '@/services/foodService';
 import type { Food } from '@/types/food';
+import axios from 'axios';
 
 const CREATE_MODAL_ID = 'create-food-modal';
 const EDIT_MODAL_ID = 'edit-food-modal';
@@ -14,6 +15,8 @@ export function DietFoodPage() {
   const [foods, setFoods] = useState<Food[]>([]);
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
   const [loading, setLoading] = useState(true);
+  const [foodToDelete, setFoodToDelete] = useState<Food | null>(null);
+  const [deleteError, setDeleteError] = useState('');
 
   async function loadFoods() {
     try {
@@ -39,19 +42,26 @@ export function DietFoodPage() {
       )?.showModal();
     }, 0);
   }
-  async function handleDelete(food: Food) {
-  const confirmed = window.confirm(
-    `Deseja realmente excluir o alimento "${food.name}"?`
-  );
+async function handleDelete() {
+  if (!foodToDelete) return;
 
-  if (!confirmed) return;
+  setDeleteError('');
 
   try {
-    await deleteFood(food.id);
+    await deleteFood(foodToDelete.id);
+    setFoodToDelete(null);
     await loadFoods();
   } catch (error) {
     console.error('Erro ao excluir alimento:', error);
-    alert('Não foi possível excluir o alimento.');
+
+    if (axios.isAxiosError(error)) {
+      setDeleteError(
+        error.response?.data?.error ??
+        'Não foi possível excluir o alimento.'
+      );
+    } else {
+      setDeleteError('Não foi possível excluir o alimento.');
+    }
   }
 }
 
@@ -87,12 +97,15 @@ export function DietFoodPage() {
   </button>
 
   <button
-    className="btn btn-outline btn-error btn-sm"
-    onClick={() => handleDelete(food)}
-  >
-    <Trash size={18} />
-    Excluir
-  </button>
+   className="btn btn-outline btn-error btn-sm"
+   onClick={() => {
+    setDeleteError('');
+    setFoodToDelete(food);
+  }}
+>
+  <Trash size={18} />
+  Excluir
+</button>
 </div>
                 </div>
 
@@ -131,6 +144,42 @@ export function DietFoodPage() {
         food={selectedFood}
         onUpdated={loadFoods}
       />
+      {foodToDelete && (
+  <dialog className="modal" open>
+    <div className="modal-box">
+      <h3 className="font-bold text-lg">
+        Excluir alimento
+      </h3>
+
+      <p className="py-4">
+        Tem certeza de que deseja excluir o alimento{' '}
+        <strong>{foodToDelete.name}</strong>?
+      </p>
+
+      {deleteError && (
+        <p className="text-error text-sm">
+          {deleteError}
+        </p>
+      )}
+
+      <div className="modal-action">
+        <button
+          className="btn"
+          onClick={() => setFoodToDelete(null)}
+        >
+          Cancelar
+        </button>
+
+        <button
+          className="btn btn-error"
+          onClick={handleDelete}
+        >
+          Excluir
+        </button>
+      </div>
+    </div>
+  </dialog>
+)}
     </div>
   );
 }

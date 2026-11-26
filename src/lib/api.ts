@@ -1,5 +1,4 @@
-// Cliente HTTP mínimo do front para o sinutre-back.
-// Lê a base do servidor de import.meta.env.VITE_API_URL.
+
 import axios from 'axios';
 
 export const API_URL = import.meta.env.VITE_API_URL;
@@ -29,6 +28,7 @@ export async function apiFetch<T>(
   init: RequestInit = {},
 ): Promise<T> {
   const token = getToken();
+
   const res = await fetch(`${API_URL}${path}`, {
     ...init,
     headers: {
@@ -46,15 +46,29 @@ export async function apiFetch<T>(
   return res.json() as Promise<T>;
 }
 
-
-
+// Envia o token nas requisições Axios.
 api.interceptors.request.use((config) => {
   const token = getToken();
 
   if (token) {
-    config.headers.Authorization =
-      `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`;
   }
 
   return config;
 });
+
+// Trata sessões inválidas ou expiradas.
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      clearToken();
+
+      if (window.location.pathname !== '/login') {
+        window.location.replace('/login');
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);

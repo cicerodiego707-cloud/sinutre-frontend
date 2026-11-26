@@ -26,36 +26,43 @@ export function AddFoodModal({
 
   const [loading, setLoading] = useState(false);
 
+  const [error, setError] = useState('');
+
   async function handleSave() {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
+    setError('');
 
-      await createFood({
-        name,
-        caloriesPer100g: Number(caloriesPer100g),
-        carbsPer100g: Number(carbsPer100g),
-        proteinPer100g: Number(proteinPer100g),
-        fatPer100g: Number(fatPer100g),
-      });
+    await createFood({
+      name,
+      caloriesPer100g: Number(caloriesPer100g),
+      carbsPer100g: Number(carbsPer100g),
+      proteinPer100g: Number(proteinPer100g),
+      fatPer100g: Number(fatPer100g),
+    });
 
-      setName('');
-      setCaloriesPer100g('');
-      setCarbsPer100g('');
-      setProteinPer100g('');
-      setFatPer100g('');
+    setName('');
+    setCaloriesPer100g('');
+    setCarbsPer100g('');
+    setProteinPer100g('');
+    setFatPer100g('');
 
-      await onCreated();
+    await onCreated();
 
-      (
-        document.getElementById(
-          modalId,
-        ) as HTMLDialogElement
-      )?.close();
-    } finally {
-      setLoading(false);
-    }
+    (
+      document.getElementById(
+        modalId,
+      ) as HTMLDialogElement
+    )?.close();
+
+  } catch (error) {
+    console.error('Erro ao cadastrar alimento:', error);
+    setError('Não foi possível cadastrar o alimento. Verifique os dados informados.');
+
+  } finally {
+    setLoading(false);
   }
-
+}
   return (
     <dialog id={modalId} className="modal">
       <div className="modal-box">
@@ -113,7 +120,11 @@ export function AddFoodModal({
             }
           />
         </div>
-
+        {error && (
+        <div className="alert alert-error mt-3">
+        <span>{error}</span>
+        </div>
+           )}
         <div className="modal-action">
           <form method="dialog">
             <button className="btn">
@@ -121,14 +132,15 @@ export function AddFoodModal({
             </button>
           </form>
 
-          <button
-            className="btn btn-primary"
-            disabled={loading}
-            onClick={handleSave}
+            <button
+               className="btn btn-primary"
+               disabled={loading}
+               onClick={handleSave}
           >
             {loading ? 'Salvando...' : 'Salvar'}
           </button>
         </div>
+
       </div>
     </dialog>
   );

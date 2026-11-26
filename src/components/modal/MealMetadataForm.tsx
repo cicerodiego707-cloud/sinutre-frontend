@@ -16,22 +16,23 @@ export function MealMetadataForm( {meal, setMeal} : MealMetadataProp) {
         <input
           id="meal-description"
           type="text"
+          value={meal.description}
           placeholder="Ex: almoço pós treino"
           className="input input-bordered w-full"
           onChange={(e) =>
-                setMeal({
-                  ...meal,
-                  description: e.target.value,
-                })
-              }
-        />
+    setMeal({
+      ...meal,
+      description: e.target.value,
+    })
+  }
+/>
       </FormField>
 
       <FormField label="Categoria" htmlFor="meal-category">
         <select
           id="meal-category"
           className="select select-bordered w-full"
-          defaultValue={meal.type}
+          value={meal.type}
           disabled={true}
           onChange={(e) =>
                 setMeal({
@@ -55,6 +56,7 @@ export function MealMetadataForm( {meal, setMeal} : MealMetadataProp) {
         <input
           id="meal-datetime"
           type="datetime-local"
+          value={meal.eatTime}
           className="input input-bordered w-full"
           onChange={(e) =>
                 setMeal({

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { AddMealCard } from '@/components/cards/AddMealCard';
+import { HowItWorksCard } from '@/components/cards/HowItWorksCard';
 import { TotalMealsCard } from '@/components/cards/TotalMealsCard';
 import { Header } from '@/components/layout/Header';
 import { MacroStatsBar } from '@/components/macros/MacroStatsBar';
@@ -7,9 +8,12 @@ import { MealFab } from '@/components/meals/MealFab';
 import { MealsList } from '@/components/meals/MealsList';
 import { MealsTable } from '@/components/meals/MealsTable';
 import { AddMealModal } from '@/components/modal/AddMealModal';
+import { EditMealModal } from '@/components/modal/EditMealModal';
 import { useAuth } from '@/context/AuthContext';
 import { Meal } from '@/types/mealSummary';
 import { api } from '@/lib/api';
+import { deleteMeal } from '@/services/mealService';
+import { DeleteMealModal } from '@/components/modal/DeleteMealModal';
 
 import {
   //MACRO_SUMMARY,
@@ -37,15 +41,34 @@ export function DashboardPage({ drawerId }: DashboardPageProps) {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
   const [calorieGoal, setCalorieGoal] = useState<number | null>(null);
+  const [mealToDelete, setMealToDelete] = useState<Meal | null>(null);
+  const [mealToEdit, setMealToEdit] = useState<Meal | null>(null);
 
   async function loadMeals() {
-    try {
-      const response = await api.get('/meals');
-      setMeals(response.data);
-    } finally {
-      setLoading(false);
-    }
+  try {
+    const response = await api.get('/meals');
+    setMeals(response.data);
+  } catch (error) {
+    setMeals([]);
+    console.error('Erro ao carregar refeições:', error);
+  } finally {
+    setLoading(false);
   }
+}
+
+async function handleDeleteMeal() {
+  if (!mealToDelete) return;
+
+  try {
+    await deleteMeal(mealToDelete.id);
+    setMealToDelete(null);
+    await loadMeals();
+  } catch (error) {
+    console.error('Erro ao excluir refeição:', error);
+    window.alert('Não foi possível excluir a refeição.');
+  }
+}
+
   async function loadHealthData() {
   try {
     const response = await api.get('/healthdata');
@@ -142,12 +165,22 @@ export function DashboardPage({ drawerId }: DashboardPageProps) {
         <MacroStatsBar summary={macroSummary} />
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-6 items-stretch">
-          <TotalMealsCard summary={mealsSummary} />
-          <AddMealCard onSelectCategory={modal.openWith} />
-        </div>
+     <TotalMealsCard summary={mealsSummary} />
+     <AddMealCard onSelectCategory={modal.openWith} />
+     </div>
 
-        <MealsTable meals={meals} />
-        <MealsList meals={meals} />
+     <HowItWorksCard />
+
+     <MealsTable
+        meals={meals}
+        onActionClick={(meal) => setMealToDelete(meal)}
+        onEditClick={(meal) => setMealToEdit(meal)}
+       />
+     <MealsList
+        meals={meals}
+        onActionClick={(meal) => setMealToDelete(meal)}
+        onEditClick={(meal) => setMealToEdit(meal)}
+       />
       </div>
 
       <MealFab onSelectCategory={modal.openWith} />
@@ -158,6 +191,17 @@ export function DashboardPage({ drawerId }: DashboardPageProps) {
         onClose={modal.close}
         onSave={modal.close}
         onMealCreated={loadMeals}
+      />
+      <DeleteMealModal
+        open={mealToDelete !== null}
+        mealName={mealToDelete?.name ?? ''}
+        onClose={() => setMealToDelete(null)}
+        onConfirm={handleDeleteMeal}
+      />
+      <EditMealModal
+        meal={mealToEdit}
+        onClose={() => setMealToEdit(null)}
+        onMealUpdated={loadMeals}
       />
     </>
   );

@@ -26,8 +26,8 @@ export function MealItemsTable({ items, onRemove }: MealItemsTableProps) {
               <td>{item.name}</td>
               <td>{item.grams} g</td>
               <td>
-                <span className="badge badge-outline badge-primary">
-                  {item.calories} kcal
+                <span className="badge badge-outline badge-primary whitespace-nowrap shrink-0">
+                  {Math.round(item.calories)} kcal
                 </span>
               </td>
               <td>{item.carbs} g</td>

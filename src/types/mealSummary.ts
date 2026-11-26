@@ -2,12 +2,10 @@ export type MealCategory = 'breakfast' | 'lunch' | 'snack' | 'dinner' ;
 
 
 export interface MealItem {
-  id: number;
-  grams: number;
-
   foodId: number;
+  foodG: number;
 
-  food?: {
+  food: {
     id: number;
     name: string;
     caloriesPer100g: number;

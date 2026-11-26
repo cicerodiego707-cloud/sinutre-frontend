@@ -1,13 +1,18 @@
+
 import type { Meal } from "@/types/mealSummary";
 import { MealsTableRow } from './MealsTableRow';
 
 interface MealsTableProps {
   meals: Meal[];
   onActionClick?: (meal: Meal) => void;
+  onEditClick?: (meal: Meal) => void;
 }
 
-export function MealsTable({ meals, onActionClick }: MealsTableProps) {
-  
+export function MealsTable({
+  meals,
+  onActionClick,
+  onEditClick,
+}: MealsTableProps) {
   return (
     <section className="card bg-base-100 shadow-sm w-full hidden lg:block">
       <div className="overflow-x-auto">
@@ -28,6 +33,7 @@ export function MealsTable({ meals, onActionClick }: MealsTableProps) {
                 key={meal.id}
                 meal={meal}
                 onActionClick={onActionClick}
+                onEditClick={onEditClick}
               />
             ))}
           </tbody>
